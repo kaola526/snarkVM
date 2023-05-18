@@ -117,6 +117,7 @@ macro_rules! impl_store_and_remote_fetch {
             // cannot thus download bytes directly and enforces a text encoding. To get back the
             // original binary, a charset that does not corrupt the original bytes must be used.
             xhr.override_mime_type("octet/binary; charset=ISO-8859-5").unwrap();
+            xhr.set_request_header("Access-Control-Allow-Origin","*").unwrap();
 
             // Initialize and send the request.
             xhr.open_with_async("GET", url, false).map_err(|_| {
