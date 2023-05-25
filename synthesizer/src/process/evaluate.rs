@@ -19,7 +19,7 @@ impl<N: Network> Process<N> {
     #[inline]
     pub fn evaluate<A: circuit::Aleo<Network = N>>(&self, authorization: Authorization<N>) -> Result<Response<N>> {
         let timer = timer!("Process::evaluate");
-
+        web_sys::console::time_with_label("Process::evaluate");
         // Retrieve the main request (without popping it).
         let request = authorization.peek_next()?;
 
@@ -30,9 +30,11 @@ impl<N: Network> Process<N> {
         let response =
             self.get_stack(request.program_id())?.evaluate_function::<A>(CallStack::evaluate(authorization)?);
         lap!(timer, "Evaluate the function");
+        web_sys::console::time_end_with_label("Process::evaluate");
+        web_sys::console::time_with_label("Evaluate the function");
 
         finish!(timer);
-
+        web_sys::console::time_end_with_label("Evaluate the function");
         response
     }
 }

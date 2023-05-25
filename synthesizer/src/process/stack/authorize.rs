@@ -25,7 +25,8 @@ impl<N: Network> Stack<N> {
         rng: &mut R,
     ) -> Result<Authorization<N>> {
         let timer = timer!("Stack::authorize");
-
+        web_sys::console::time_with_label("Stack::authorize");
+        
         // Ensure the program contains functions.
         ensure!(!self.program.functions().is_empty(), "Program '{}' has no functions", self.program.id());
 
@@ -45,10 +46,14 @@ impl<N: Network> Stack<N> {
             )
         }
         lap!(timer, "Verify the number of inputs");
+        web_sys::console::time_end_with_label("Stack::authorize");
+        web_sys::console::time_with_label("Verify the number of inputs");
 
         // Compute the request.
         let request = Request::sign(private_key, *self.program.id(), function_name, inputs, &input_types, rng)?;
         lap!(timer, "Compute the request");
+        web_sys::console::time_end_with_label("Verify the number of inputs");
+        web_sys::console::time_with_label("Compute the request");
         // Initialize the authorization.
         let authorization = Authorization::new(&[request.clone()]);
         // Construct the call stack.
@@ -56,6 +61,7 @@ impl<N: Network> Stack<N> {
         // Construct the authorization from the function.
         let _response = self.execute_function::<A, R>(call_stack, rng)?;
         lap!(timer, "Construct the authorization from the function");
+        web_sys::console::time_end_with_label("Compute the request");
 
         finish!(timer);
 
