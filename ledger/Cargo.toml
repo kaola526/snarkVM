@@ -13,7 +13,7 @@ keywords = [
   "zero-knowledge"
 ]
 categories = [ "cryptography", "web-programming" ]
-license = "GPL-3.0"
+license = "Apache-2.0"
 edition = "2021"
 
 [features]
@@ -32,7 +32,7 @@ path = "../synthesizer"
 version = "=0.11.2"
 
 [dependencies.aleo-std]
-version = "0.1.15"
+version = "0.1.18"
 default-features = false
 
 [dependencies.anyhow]
