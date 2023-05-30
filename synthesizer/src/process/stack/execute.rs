@@ -126,23 +126,16 @@ impl<N: Network> StackExecute<N> for Stack<N> {
         rng: &mut R,
     ) -> Result<Response<N>> {
         let timer = timer!("Stack::execute_function");
-        let logname = "Stack::execute_function";
-        web_sys::console::time_stamp_with_data(&logname.into());
-        web_sys::console::time_with_label(logname);
+
         // Ensure the call stack is not `Evaluate`.
         ensure!(!matches!(call_stack, CallStack::Evaluate(..)), "Illegal operation: cannot evaluate in execute mode");
-        
+
         // Ensure the circuit environment is clean.
         A::reset();
-        web_sys::console::time_end_with_label(logname);
 
-
-        let logname = "Stack::execute_function-1";
-        web_sys::console::time_stamp_with_data(&logname.into());
-        web_sys::console::time_with_label(logname);
         // Retrieve the next request.
         let console_request = call_stack.pop()?;
-        
+
         // Ensure the network ID matches.
         ensure!(
             **console_request.network_id() == N::ID,
@@ -150,12 +143,7 @@ impl<N: Network> StackExecute<N> for Stack<N> {
             N::ID,
             console_request.network_id()
         );
-        
-        web_sys::console::time_end_with_label(logname);
 
-        let logname = "Stack::execute_function0";
-        web_sys::console::time_stamp_with_data(&logname.into());
-        web_sys::console::time_with_label(logname);
         // Retrieve the function from the program.
         let function = self.get_function(console_request.function_name())?;
         // Retrieve the number of inputs.
@@ -168,64 +156,49 @@ impl<N: Network> StackExecute<N> for Stack<N> {
         let input_types = function.input_types();
         // Retrieve the output types.
         let output_types = function.output_types();
-        web_sys::console::time_end_with_label(logname);
         lap!(timer, "Retrieve the input and output types");
-        let logname = "Stack::execute_function1";
-        web_sys::console::time_stamp_with_data(&logname.into());
-        web_sys::console::time_with_label(logname);
+
         // Ensure the inputs match their expected types.
         console_request.inputs().iter().zip_eq(&input_types).try_for_each(|(input, input_type)| {
             // Ensure the input matches the input type in the function.
             self.matches_value_type(input, input_type)
         })?;
-        web_sys::console::time_end_with_label(logname);
         lap!(timer, "Verify the input types");
-        let logname = "Stack::execute_function2";
-        web_sys::console::time_stamp_with_data(&logname.into());
-        web_sys::console::time_with_label(logname);
-        
+
         // Ensure the request is well-formed.
         ensure!(console_request.verify(&input_types), "Request is invalid");
-        web_sys::console::time_end_with_label(logname);
         lap!(timer, "Verify the request");
-        let logname = "Stack::request.verify";
-        web_sys::console::time_stamp_with_data(&logname.into());
-        web_sys::console::time_with_label(logname);
-        
+
         // Initialize the registers.
         let mut registers = Registers::new(call_stack, self.get_register_types(function.name())?.clone());
-        
+
         use circuit::{Eject, Inject};
-        
+
         // Inject the transition public key `tpk` as `Mode::Public`.
         let tpk = circuit::Group::<A>::new(circuit::Mode::Public, console_request.to_tpk());
         // Inject the request as `Mode::Private`.
         let request = circuit::Request::new(circuit::Mode::Private, console_request.clone());
         // Ensure the request has a valid signature, inputs, and transition view key.
         A::assert(request.verify(&input_types, &tpk));
-        
+
         // Set the transition caller.
         registers.set_caller(*console_request.caller());
         // Set the transition caller, as a circuit.
         registers.set_caller_circuit(request.caller().clone());
-        
+
         // Set the transition view key.
         registers.set_tvk(*console_request.tvk());
         // Set the transition view key, as a circuit.
         registers.set_tvk_circuit(request.tvk().clone());
-        
-        web_sys::console::time_end_with_label(logname);
+
         lap!(timer, "Initialize the registers");
-        let logname = "Stack::CallStack::Execute";
-        web_sys::console::time_stamp_with_data(&logname.into());
-        web_sys::console::time_with_label(logname);
-        
+
         #[cfg(debug_assertions)]
         Self::log_circuit::<A, _>("Request");
-        
+
         // Retrieve the number of constraints for verifying the request in the circuit.
         let num_request_constraints = A::num_constraints();
-        
+
         // Retrieve the number of public variables in the circuit.
         let num_public = A::num_public();
 
@@ -239,15 +212,11 @@ impl<N: Network> StackExecute<N> for Stack<N> {
             // Assign the circuit input to the register.
             registers.store_circuit(self, register, input.clone())
         })?;
-        web_sys::console::time_end_with_label(logname);
         lap!(timer, "Store the inputs");
-        let logname = "Stack::instruction.execute";
-        web_sys::console::time_stamp_with_data(&logname.into());
-        web_sys::console::time_with_label(logname);
-        
+
         // Initialize a tracker to determine if there are any function calls.
         let mut contains_function_call = false;
-        
+
         // Execute the instructions.
         for instruction in function.instructions() {
             // If the circuit is in execute mode, then evaluate the instructions.
@@ -269,12 +238,8 @@ impl<N: Network> StackExecute<N> for Stack<N> {
                 }
             }
         }
-        web_sys::console::time_end_with_label(logname);
         lap!(timer, "Execute the instructions");
-        let logname = "Stack::output_operands";
-        web_sys::console::time_stamp_with_data(&logname.into());
-        web_sys::console::time_with_label(logname);
-        
+
         // Load the outputs.
         let output_operands = &function.outputs().iter().map(|output| output.operand()).collect::<Vec<_>>();
         let outputs = output_operands
@@ -300,12 +265,8 @@ impl<N: Network> StackExecute<N> for Stack<N> {
                 }
             })
             .collect::<Result<Vec<_>>>()?;
-        web_sys::console::time_end_with_label(logname);
         lap!(timer, "Load the outputs");
-        let logname = "Stack::from_outputs";
-        web_sys::console::time_stamp_with_data(&logname.into());
-        web_sys::console::time_with_label(logname);
-        
+
         // Map the output operands into registers.
         let output_registers = output_operands
             .iter()
@@ -339,15 +300,11 @@ impl<N: Network> StackExecute<N> for Stack<N> {
             &output_types,
             &output_registers,
         );
-        web_sys::console::time_end_with_label(logname);
         lap!(timer, "Construct the response");
-        let logname = "Stack::CheckDeployment";
-        web_sys::console::time_stamp_with_data(&logname.into());
-        web_sys::console::time_with_label(logname);
-        
+
         #[cfg(debug_assertions)]
         Self::log_circuit::<A, _>("Response");
-        
+
         // Retrieve the number of constraints for verifying the response in the circuit.
         let num_response_constraints =
             A::num_constraints().saturating_sub(num_request_constraints).saturating_sub(num_function_constraints);
@@ -360,7 +317,7 @@ impl<N: Network> StackExecute<N> for Stack<N> {
             // If this function has the finalize command, then construct the finalize inputs.
             if let Some(command) = function.finalize_command() {
                 use circuit::ToBits;
-                
+
                 // Ensure the number of inputs is within bounds.
                 ensure!(
                     command.operands().len() <= N::MAX_INPUTS,
@@ -372,7 +329,7 @@ impl<N: Network> StackExecute<N> for Stack<N> {
                 let mut console_finalize_inputs = Vec::with_capacity(command.operands().len());
                 // Initialize a vector for the (circuit) finalize input bits.
                 let mut circuit_finalize_input_bits = Vec::with_capacity(command.operands().len());
-                
+
                 // Retrieve the finalize inputs.
                 for operand in command.operands() {
                     // Retrieve the finalize input.
@@ -390,25 +347,25 @@ impl<N: Network> StackExecute<N> for Stack<N> {
                             );
                         }
                     }
-                    
+
                     // Store the (console) finalize input.
                     console_finalize_inputs.push(value.eject_value());
                     // Store the (circuit) finalize input bits.
                     circuit_finalize_input_bits.extend(value.to_bits_le());
                 }
-                
+
                 // Compute the finalize inputs checksum.
                 let finalize_checksum = A::hash_bhp1024(&circuit_finalize_input_bits);
                 // Inject the finalize inputs checksum as `Mode::Public`.
                 let circuit_checksum = circuit::Field::<A>::new(circuit::Mode::Public, finalize_checksum.eject_value());
                 // Enforce the injected checksum matches the original checksum.
                 A::assert_eq(circuit_checksum, finalize_checksum);
-                
+
                 #[cfg(debug_assertions)]
                 Self::log_circuit::<A, _>("Finalize");
-                
+
                 lap!(timer, "Construct the finalize inputs");
-                
+
                 // Return the (console) finalize inputs.
                 Some(console_finalize_inputs)
             } else {
@@ -417,23 +374,19 @@ impl<N: Network> StackExecute<N> for Stack<N> {
         } else {
             None
         };
-        web_sys::console::time_end_with_label(logname);
-        let logname = "Stack::contains_proving_key";
-        web_sys::console::time_stamp_with_data(&logname.into());
-        web_sys::console::time_with_label(logname);
-        
+
         #[cfg(debug_assertions)]
         Self::log_circuit::<A, _>("Complete");
-        
+
         // Eject the response.
         let response = response.eject_value();
-        
+
         // Ensure the outputs matches the expected value types.
         response.outputs().iter().zip_eq(&output_types).try_for_each(|(output, output_type)| {
             // Ensure the output matches its expected type.
             self.matches_value_type(output, output_type)
         })?;
-        
+
         // If the circuit is in `Execute` mode, then ensure the circuit is satisfied.
         if let CallStack::Execute(..) = registers.call_stack() {
             // If the circuit is empty or not satisfied, then throw an error.
@@ -448,10 +401,10 @@ impl<N: Network> StackExecute<N> for Stack<N> {
 
         // Eject the circuit assignment and reset the circuit.
         let assignment = A::eject_assignment_and_reset();
-        
+
         // If the circuit is in `Synthesize` or `Execute` mode, synthesize the circuit key, if it does not exist.
         if matches!(registers.call_stack(), CallStack::Synthesize(..))
-        || matches!(registers.call_stack(), CallStack::Execute(..))
+            || matches!(registers.call_stack(), CallStack::Execute(..))
         {
             // If the proving key does not exist, then synthesize it.
             if !self.contains_proving_key(function.name()) {
@@ -460,11 +413,7 @@ impl<N: Network> StackExecute<N> for Stack<N> {
                 lap!(timer, "Synthesize the {} circuit key", function.name());
             }
         }
-        web_sys::console::time_end_with_label(logname);
-        let logname = "Stack::CheckDeployment";
-        web_sys::console::time_stamp_with_data(&logname.into());
-        web_sys::console::time_with_label(logname);
-        
+
         // If the circuit is in `CheckDeployment` mode, then save the assignment.
         if let CallStack::CheckDeployment(_, _, ref assignments) = registers.call_stack() {
             // Add the assignment to the assignments.
@@ -474,7 +423,7 @@ impl<N: Network> StackExecute<N> for Stack<N> {
         // If the circuit is in `Execute` mode, then execute the circuit into a transition.
         else if let CallStack::Execute(_, ref execution, ref inclusion, ref metrics) = registers.call_stack() {
             registers.ensure_console_and_circuit_registers_match()?;
-            
+
             // Retrieve the proving key.
             let proving_key = self.get_proving_key(function.name())?;
             // Execute the circuit.
@@ -483,16 +432,16 @@ impl<N: Network> StackExecute<N> for Stack<N> {
                 Err(error) => bail!("Execution proof failed - {error}"),
             };
             lap!(timer, "Execute the circuit");
-            
+
             // Construct the transition.
             let transition =
-            Transition::from(&console_request, &response, finalize, &output_types, &output_registers, proof)?;
-            
+                Transition::from(&console_request, &response, finalize, &output_types, &output_registers, proof)?;
+
             // Add the transition commitments.
             inclusion.write().insert_transition(console_request.input_ids(), &transition)?;
             // Add the transition to the execution.
             execution.write().push(transition);
-            
+
             // Add the metrics.
             metrics.write().push(CallMetrics {
                 program_id: *self.program_id(),
@@ -503,10 +452,9 @@ impl<N: Network> StackExecute<N> for Stack<N> {
                 num_response_constraints,
             });
         }
-        web_sys::console::time_end_with_label(logname);
-        
+
         finish!(timer);
-        
+
         // Return the response.
         Ok(response)
     }

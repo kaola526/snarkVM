@@ -62,10 +62,6 @@ wasm = [
 coinbase = [ "snarkvm-synthesizer-coinbase" ]
 snark = [ "snarkvm-synthesizer-snark" ]
 
-[dependencies.web-sys]
-version = "0.3.52"
-features = [ "console" ]
-
 [dependencies.snarkvm-synthesizer-coinbase]
 path = "./coinbase"
 version = "=0.11.4"
