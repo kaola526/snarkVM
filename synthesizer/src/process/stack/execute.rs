@@ -476,7 +476,7 @@ impl<N: Network> StackExecute<N> for Stack<N> {
             web_sys::console::log_1(&logname.into());
             web_sys::console::time_with_label(logname);
             // Retrieve the proving key.
-            let proving_key: <Result<ProvingKey<N>, _> as Try>::Output: <Result<ProvingKey<N>, _> as Try>::Output = self.get_proving_key(function.name())?;
+            let proving_key = self.get_proving_key(function.name())?;
             // Execute the circuit.
             let proof = match proving_key.prove(&function.name().to_string(), &assignment, rng) {
                 Ok(proof) => proof,
