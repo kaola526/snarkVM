@@ -91,8 +91,8 @@ impl<N: Network> StackEvaluate<N> for Stack<N> {
     #[inline]
     fn evaluate_function<A: circuit::Aleo<Network = N>>(&self, call_stack: CallStack<N>) -> Result<Response<N>> {
         let timer = timer!("Stack::evaluate_function");
-        web_sys::console::time_stamp_with_data(&"evaluate_function".into());
-        web_sys::console::time_with_label("evaluate_function");
+        web_sys::console::log_1(&"[evaluate] evaluate_function".into());
+        web_sys::console::time_with_label("[evaluate] evaluate_function");
         // Retrieve the next request, based on the call stack mode.
         let (request, call_stack) = match &call_stack {
             CallStack::Evaluate(authorization) => (authorization.next()?, call_stack),
@@ -100,9 +100,9 @@ impl<N: Network> StackEvaluate<N> for Stack<N> {
             _ => bail!("Illegal operation: call stack must be `Evaluate` or `Execute` in `evaluate_function`."),
         };
         lap!(timer, "Retrieve the next request");
-        web_sys::console::time_end_with_label("evaluate_function");
-        web_sys::console::time_stamp_with_data(&"Retrieve the next request".into());
-        web_sys::console::time_with_label("Retrieve the next request");
+        web_sys::console::time_end_with_label("[evaluate] evaluate_function");
+        web_sys::console::log_1(&"[evaluate] Retrieve the next request".into());
+        web_sys::console::time_with_label("[evaluate] Retrieve the next request");
 
         // Ensure the network ID matches.
         ensure!(
@@ -129,9 +129,9 @@ impl<N: Network> StackEvaluate<N> for Stack<N> {
             )
         }
         lap!(timer, "Perform input checks");
-        web_sys::console::time_end_with_label("Retrieve the next request");
-        web_sys::console::time_stamp_with_data(&"Perform input checks".into());
-        web_sys::console::time_with_label("Perform input checks");
+        web_sys::console::time_end_with_label("[evaluate] Retrieve the next request");
+        web_sys::console::log_1(&"[evaluate] Perform input checks".into());
+        web_sys::console::time_with_label("[evaluate] Perform input checks");
 
         // Initialize the registers.
         let mut registers = Registers::<N, A>::new(call_stack, self.get_register_types(function.name())?.clone());
@@ -140,16 +140,16 @@ impl<N: Network> StackEvaluate<N> for Stack<N> {
         // Set the transition view key.
         registers.set_tvk(tvk);
         lap!(timer, "Initialize the registers");
-        web_sys::console::time_end_with_label("Perform input checks");
-        web_sys::console::time_stamp_with_data(&"Initialize the registers".into());
-        web_sys::console::time_with_label("Initialize the registers");
+        web_sys::console::time_end_with_label("[evaluate] Perform input checks");
+        web_sys::console::log_1(&"[evaluate] Initialize the registers".into());
+        web_sys::console::time_with_label("[evaluate] Initialize the registers");
 
         // Ensure the request is well-formed.
         ensure!(request.verify(&function.input_types()), "Request is invalid");
         lap!(timer, "Verify the request");
-        web_sys::console::time_end_with_label("Initialize the registers");
-        web_sys::console::time_stamp_with_data(&"Verify the request".into());
-        web_sys::console::time_with_label("Verify the request");
+        web_sys::console::time_end_with_label("[evaluate] Initialize the registers");
+        web_sys::console::log_1(&"[evaluate] Verify the request".into());
+        web_sys::console::time_with_label("[evaluate] Verify the request");
 
         // Store the inputs.
         function.inputs().iter().map(|i| i.register()).zip_eq(inputs).try_for_each(|(register, input)| {
@@ -157,9 +157,9 @@ impl<N: Network> StackEvaluate<N> for Stack<N> {
             registers.store(self, register, input.clone())
         })?;
         lap!(timer, "Store the inputs");
-        web_sys::console::time_end_with_label("Verify the request");
-        web_sys::console::time_stamp_with_data(&"Store the inputs".into());
-        web_sys::console::time_with_label("Store the inputs");
+        web_sys::console::time_end_with_label("V[evaluate] erify the request");
+        web_sys::console::log_1(&"[evaluate] Store the inputs".into());
+        web_sys::console::time_with_label("[evaluate] Store the inputs");
 
         // Evaluate the instructions.
         for instruction in function.instructions() {
@@ -169,16 +169,16 @@ impl<N: Network> StackEvaluate<N> for Stack<N> {
             }
         }
         lap!(timer, "Evaluate the instructions");
-        web_sys::console::time_end_with_label("Store the inputs");
-        web_sys::console::time_stamp_with_data(&"Evaluate the instructions".into());
-        web_sys::console::time_with_label("Evaluate the instructions");
+        web_sys::console::time_end_with_label("[evaluate] Store the inputs");
+        web_sys::console::log_1(&"[evaluate] Evaluate the instructions".into());
+        web_sys::console::time_with_label("[evaluate] Evaluate the instructions");
 
         // Retrieve the output operands.
         let output_operands = &function.outputs().iter().map(|output| output.operand()).collect::<Vec<_>>();
         lap!(timer, "Retrieve the output operands");
-        web_sys::console::time_end_with_label("Evaluate the instructions");
-        web_sys::console::time_stamp_with_data(&"Retrieve the output operands".into());
-        web_sys::console::time_with_label("Retrieve the output operands");
+        web_sys::console::time_end_with_label("[evaluate] Evaluate the instructions");
+        web_sys::console::log_1(&"[evaluate] Retrieve the output operands".into());
+        web_sys::console::time_with_label("[evaluate] Retrieve the output operands");
 
         // Load the outputs.
         let outputs = output_operands
@@ -199,7 +199,7 @@ impl<N: Network> StackEvaluate<N> for Stack<N> {
             })
             .collect::<Result<Vec<_>>>()?;
         lap!(timer, "Load the outputs");
-        web_sys::console::time_end_with_label("Retrieve the output operands");
+        web_sys::console::time_end_with_label("[evaluate] Retrieve the output operands");
 
         finish!(timer);
 

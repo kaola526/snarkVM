@@ -126,8 +126,8 @@ impl<N: Network> StackExecute<N> for Stack<N> {
         rng: &mut R,
     ) -> Result<Response<N>> {
         let timer = timer!("Stack::execute_function");
-        let logname = "Stack::execute_function";
-        web_sys::console::time_stamp_with_data(&logname.into());
+        let logname = "[execute] Stack::execute_function";
+        web_sys::console::log_1(&logname.into());
         web_sys::console::time_with_label(logname);
         // Ensure the call stack is not `Evaluate`.
         ensure!(!matches!(call_stack, CallStack::Evaluate(..)), "Illegal operation: cannot evaluate in execute mode");
@@ -137,8 +137,8 @@ impl<N: Network> StackExecute<N> for Stack<N> {
         web_sys::console::time_end_with_label(logname);
 
 
-        let logname = "Stack::execute_function-1";
-        web_sys::console::time_stamp_with_data(&logname.into());
+        let logname = "[execute] Stack::execute_function-1";
+        web_sys::console::log_1(&logname.into());
         web_sys::console::time_with_label(logname);
         // Retrieve the next request.
         let console_request = call_stack.pop()?;
@@ -153,8 +153,8 @@ impl<N: Network> StackExecute<N> for Stack<N> {
         
         web_sys::console::time_end_with_label(logname);
 
-        let logname = "Stack::execute_function0";
-        web_sys::console::time_stamp_with_data(&logname.into());
+        let logname = "[execute] Stack::execute_function0";
+        web_sys::console::log_1(&logname.into());
         web_sys::console::time_with_label(logname);
         // Retrieve the function from the program.
         let function = self.get_function(console_request.function_name())?;
@@ -170,8 +170,8 @@ impl<N: Network> StackExecute<N> for Stack<N> {
         let output_types = function.output_types();
         web_sys::console::time_end_with_label(logname);
         lap!(timer, "Retrieve the input and output types");
-        let logname = "Stack::execute_function1";
-        web_sys::console::time_stamp_with_data(&logname.into());
+        let logname = "[execute] Stack::execute_function1";
+        web_sys::console::log_1(&logname.into());
         web_sys::console::time_with_label(logname);
         // Ensure the inputs match their expected types.
         console_request.inputs().iter().zip_eq(&input_types).try_for_each(|(input, input_type)| {
@@ -180,16 +180,16 @@ impl<N: Network> StackExecute<N> for Stack<N> {
         })?;
         web_sys::console::time_end_with_label(logname);
         lap!(timer, "Verify the input types");
-        let logname = "Stack::execute_function2";
-        web_sys::console::time_stamp_with_data(&logname.into());
+        let logname = "[execute] Stack::execute_function2";
+        web_sys::console::log_1(&logname.into());
         web_sys::console::time_with_label(logname);
         
         // Ensure the request is well-formed.
         ensure!(console_request.verify(&input_types), "Request is invalid");
         web_sys::console::time_end_with_label(logname);
         lap!(timer, "Verify the request");
-        let logname = "Stack::request.verify";
-        web_sys::console::time_stamp_with_data(&logname.into());
+        let logname = "[execute] Stack::request.verify";
+        web_sys::console::log_1(&logname.into());
         web_sys::console::time_with_label(logname);
         
         // Initialize the registers.
@@ -216,8 +216,8 @@ impl<N: Network> StackExecute<N> for Stack<N> {
         
         web_sys::console::time_end_with_label(logname);
         lap!(timer, "Initialize the registers");
-        let logname = "Stack::CallStack::Execute";
-        web_sys::console::time_stamp_with_data(&logname.into());
+        let logname = "[execute] Stack::CallStack::Execute";
+        web_sys::console::log_1(&logname.into());
         web_sys::console::time_with_label(logname);
         
         #[cfg(debug_assertions)]
@@ -241,8 +241,8 @@ impl<N: Network> StackExecute<N> for Stack<N> {
         })?;
         web_sys::console::time_end_with_label(logname);
         lap!(timer, "Store the inputs");
-        let logname = "Stack::instruction.execute";
-        web_sys::console::time_stamp_with_data(&logname.into());
+        let logname = "[execute] Stack::instruction.execute";
+        web_sys::console::log_1(&logname.into());
         web_sys::console::time_with_label(logname);
         
         // Initialize a tracker to determine if there are any function calls.
@@ -271,8 +271,8 @@ impl<N: Network> StackExecute<N> for Stack<N> {
         }
         web_sys::console::time_end_with_label(logname);
         lap!(timer, "Execute the instructions");
-        let logname = "Stack::output_operands";
-        web_sys::console::time_stamp_with_data(&logname.into());
+        let logname = "[execute] Stack::output_operands";
+        web_sys::console::log_1(&logname.into());
         web_sys::console::time_with_label(logname);
         
         // Load the outputs.
@@ -302,8 +302,8 @@ impl<N: Network> StackExecute<N> for Stack<N> {
             .collect::<Result<Vec<_>>>()?;
         web_sys::console::time_end_with_label(logname);
         lap!(timer, "Load the outputs");
-        let logname = "Stack::from_outputs";
-        web_sys::console::time_stamp_with_data(&logname.into());
+        let logname = "[execute] Stack::from_outputs";
+        web_sys::console::log_1(&logname.into());
         web_sys::console::time_with_label(logname);
         
         // Map the output operands into registers.
@@ -341,8 +341,8 @@ impl<N: Network> StackExecute<N> for Stack<N> {
         );
         web_sys::console::time_end_with_label(logname);
         lap!(timer, "Construct the response");
-        let logname = "Stack::CheckDeployment";
-        web_sys::console::time_stamp_with_data(&logname.into());
+        let logname = "[execute] Stack::CheckDeployment";
+        web_sys::console::log_1(&logname.into());
         web_sys::console::time_with_label(logname);
         
         #[cfg(debug_assertions)]
@@ -418,8 +418,8 @@ impl<N: Network> StackExecute<N> for Stack<N> {
             None
         };
         web_sys::console::time_end_with_label(logname);
-        let logname = "Stack::contains_proving_key";
-        web_sys::console::time_stamp_with_data(&logname.into());
+        let logname = "[execute] Stack::contains_proving_key";
+        web_sys::console::log_1(&logname.into());
         web_sys::console::time_with_label(logname);
         
         #[cfg(debug_assertions)]
@@ -461,9 +461,7 @@ impl<N: Network> StackExecute<N> for Stack<N> {
             }
         }
         web_sys::console::time_end_with_label(logname);
-        let logname = "Stack::CheckDeployment";
-        web_sys::console::time_stamp_with_data(&logname.into());
-        web_sys::console::time_with_label(logname);
+        
         
         // If the circuit is in `CheckDeployment` mode, then save the assignment.
         if let CallStack::CheckDeployment(_, _, ref assignments) = registers.call_stack() {
@@ -474,16 +472,21 @@ impl<N: Network> StackExecute<N> for Stack<N> {
         // If the circuit is in `Execute` mode, then execute the circuit into a transition.
         else if let CallStack::Execute(_, ref execution, ref inclusion, ref metrics) = registers.call_stack() {
             registers.ensure_console_and_circuit_registers_match()?;
-            
+            let logname = "[execute] proving_key.prove";
+            web_sys::console::log_1(&logname.into());
+            web_sys::console::time_with_label(logname);
             // Retrieve the proving key.
-            let proving_key = self.get_proving_key(function.name())?;
+            let proving_key: <Result<ProvingKey<N>, _> as Try>::Output: <Result<ProvingKey<N>, _> as Try>::Output = self.get_proving_key(function.name())?;
             // Execute the circuit.
             let proof = match proving_key.prove(&function.name().to_string(), &assignment, rng) {
                 Ok(proof) => proof,
                 Err(error) => bail!("Execution proof failed - {error}"),
             };
             lap!(timer, "Execute the circuit");
-            
+            web_sys::console::time_end_with_label(logname);
+            let logname = "[execute] Transition::from";
+            web_sys::console::log_1(&logname.into());
+            web_sys::console::time_with_label(logname);
             // Construct the transition.
             let transition =
             Transition::from(&console_request, &response, finalize, &output_types, &output_registers, proof)?;
@@ -502,8 +505,9 @@ impl<N: Network> StackExecute<N> for Stack<N> {
                 num_function_constraints,
                 num_response_constraints,
             });
+            web_sys::console::time_end_with_label(logname);
         }
-        web_sys::console::time_end_with_label(logname);
+        
         
         finish!(timer);
         
