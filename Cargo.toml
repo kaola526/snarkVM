@@ -129,9 +129,6 @@ timer = [ "snarkvm-ledger/timer" ]
 utilities = [ "snarkvm-utilities" ]
 wasm = [ "snarkvm-wasm" ]
 
-[dependencies]
-log = "0.4"
-
 [dependencies.snarkvm-algorithms]
 path = "./algorithms"
 version = "=0.11.4"

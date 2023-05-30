@@ -26,9 +26,6 @@ edition = "2021"
 [lib]
 crate-type = [ "cdylib", "rlib" ]
 
-[dependencies]
-log = "0.4"
-
 [dependencies.snarkvm-console]
 path = "../console"
 version = "=0.11.4"

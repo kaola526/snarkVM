@@ -2309,7 +2309,6 @@ dependencies = [
  "clap",
  "colored",
  "indexmap",
- "log",
  "num-format",
  "once_cell",
  "parking_lot",
@@ -2973,7 +2972,6 @@ name = "snarkvm-wasm"
 version = "0.11.4"
 dependencies = [
  "getrandom",
- "log",
  "rand",
  "serde",
  "snarkvm-console",
