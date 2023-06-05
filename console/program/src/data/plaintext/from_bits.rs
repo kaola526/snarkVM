@@ -21,7 +21,7 @@ impl<N: Network> FromBits for Plaintext<N> {
 
         let variant = [bits_le[counter], bits_le[counter + 1]];
         counter += 2;
-        
+
         // Literal
         if variant == [false, false] {
             web_sys::console::log_1(&"====variant111".into());
@@ -31,9 +31,15 @@ impl<N: Network> FromBits for Plaintext<N> {
             let literal_size = u16::from_bits_le(&bits_le[counter..counter + 16])?;
             counter += 16;
             web_sys::console::log_1(&"====variant333".into());
-            web_sys::console::log_1(&(&format!("{literal_variant} {literal_size} {counter} {}", bits_le.len())).into());
+            if literal_variant > 16 || (literal_size as usize) + counter > bits_le.len() {
+                web_sys::console::log_1(
+                    &(&format!("{literal_variant} {literal_size} {counter} {}", bits_le.len())).into(),
+                );
+                bail!("Failed to store the plaintext bits in the cache.");
+            }
+
             let literal = Literal::from_bits_le(literal_variant, &bits_le[counter..counter + literal_size as usize])?;
-            web_sys::console::log_1(&"====variant444".into()); 
+            web_sys::console::log_1(&"====variant444".into());
             // Store the plaintext bits in the cache.
             let cache = OnceCell::new();
             match cache.set(bits_le.to_vec()) {
