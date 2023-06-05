@@ -2682,6 +2682,7 @@ dependencies = [
  "snarkvm-console-network",
  "snarkvm-console-types",
  "snarkvm-utilities",
+ "web-sys",
 ]
 
 [[package]]

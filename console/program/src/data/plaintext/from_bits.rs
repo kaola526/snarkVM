@@ -21,17 +21,18 @@ impl<N: Network> FromBits for Plaintext<N> {
 
         let variant = [bits_le[counter], bits_le[counter + 1]];
         counter += 2;
-
+        
         // Literal
         if variant == [false, false] {
+            web_sys::console::log_1(&"====variant111".into());
             let literal_variant = u8::from_bits_le(&bits_le[counter..counter + 8])?;
             counter += 8;
-
+            web_sys::console::log_1(&"====variant222".into());
             let literal_size = u16::from_bits_le(&bits_le[counter..counter + 16])?;
             counter += 16;
-
+            web_sys::console::log_1(&"====variant333".into());
             let literal = Literal::from_bits_le(literal_variant, &bits_le[counter..counter + literal_size as usize])?;
-
+            web_sys::console::log_1(&"====variant444".into()); 
             // Store the plaintext bits in the cache.
             let cache = OnceCell::new();
             match cache.set(bits_le.to_vec()) {
@@ -42,28 +43,30 @@ impl<N: Network> FromBits for Plaintext<N> {
         }
         // Struct
         else if variant == [false, true] {
+            web_sys::console::log_1(&"=====Struct111".into());
             let num_members = u8::from_bits_le(&bits_le[counter..counter + 8])?;
             counter += 8;
-
+            web_sys::console::log_1(&"=====Struct2222".into());
             let mut members = IndexMap::with_capacity(num_members as usize);
             for _ in 0..num_members {
+                web_sys::console::log_1(&"=====Struct2222 - 1 ".into());
                 let identifier_size = u8::from_bits_le(&bits_le[counter..counter + 8])?;
                 counter += 8;
-
+                web_sys::console::log_1(&"=====Struct2222 - 2 ".into());
                 let identifier = Identifier::from_bits_le(&bits_le[counter..counter + identifier_size as usize])?;
                 counter += identifier_size as usize;
-
+                web_sys::console::log_1(&"=====Struct2222 - 3 ".into());
                 let member_size = u16::from_bits_le(&bits_le[counter..counter + 16])?;
                 counter += 16;
-
+                web_sys::console::log_1(&"=====Struct2222 - 4 ".into());
                 let value = Plaintext::from_bits_le(&bits_le[counter..counter + member_size as usize])?;
                 counter += member_size as usize;
-
+                web_sys::console::log_1(&"=====Struct2222 - 5 ".into());
                 if members.insert(identifier, value).is_some() {
                     bail!("Duplicate identifier in struct.");
                 }
             }
-
+            web_sys::console::log_1(&"=====Struct3333 ".into());
             // Store the plaintext bits in the cache.
             let cache = OnceCell::new();
             match cache.set(bits_le.to_vec()) {
