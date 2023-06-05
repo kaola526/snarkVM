@@ -31,6 +31,7 @@ impl<N: Network> FromBits for Plaintext<N> {
             let literal_size = u16::from_bits_le(&bits_le[counter..counter + 16])?;
             counter += 16;
             web_sys::console::log_1(&"====variant333".into());
+            web_sys::console::log_1(&(&format!("{literal_variant} {literal_size} {counter} {}", bits_le.len())).into());
             let literal = Literal::from_bits_le(literal_variant, &bits_le[counter..counter + literal_size as usize])?;
             web_sys::console::log_1(&"====variant444".into()); 
             // Store the plaintext bits in the cache.
